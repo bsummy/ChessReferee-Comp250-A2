@@ -1,3 +1,4 @@
+import java.util.List;
 import java.util.Stack;
 
 public class Game {
@@ -7,26 +8,62 @@ public class Game {
 
     public Game(){
         // todo: write a constructor that initializes the game with a new board
+        b = new Board();
+        currentTurn = Side.WHITE;
         // hint: you are also responsible for tracking whose turn it is
     }
 
     public static String getName() {
-        return "Queen's Game-bit";
+        return "Checkers?? idk bro";
     }
-    public boolean canMove(int x, int y, int destX, int destY, Side s){
+
+    public boolean canMove(int x, int y, int destX, int destY, Side s) {
        /* TODO write a method that checks if a piece at coordinates x,y can move to coordinates destX,destY
        Conditions for false:
        - Origin or destination coordinates are outside the board
-       - Piece at origin is null or captured
+       - Piece at origin is null
+       - If source and destination coordinates are the same
        - Piece at origin is not of the same side as s
-            - You can check this using piece.getSide()
+            - You can check this using Piece.getSide()
        - Piece cannot move to the destination by piece movement rules
-            - You should check this using piece.canMove(destX, destY, b)
+            - You should check this using Piece.canMove(destX, destY)
        - Destination has a piece of the same Side as the player
        - piece must move "through" a piece to get from (x,y) to (destX,destY) (use isVisible())
-            - The knight is the except to this rule. The knight can hop "over" pieces, so be sure to check for this.
+            - The knight is the exception to this rule. The knight can hop "over" pieces, so be sure to check for this.
           */
-        return false;
+
+        Piece piecePlace;
+        if (((x >= 0 && x <= 8) && (y >= 0 && y <= 8)) && b.get(x, y) != null) {
+            //if piece at origin is not null (to simplify calls)
+            piecePlace = b.get(x, y);
+        } else {
+            //if no piece at origin
+            return false;
+        }
+        if (!(destX >= 0 && destX < 8) && !(destY >= 0 && destY < 8)) {
+            //if the piece destination is outside the board
+            return false;
+        } else if (!(x >= 0 && x < 8) && !(y >= 0 && y < 8)){
+            //if the starting location is outside of the board
+            return false;
+        } else if ((destX == x) && (destY == y)) {
+            //if source and destination and coords are the same
+            return false;
+        } else if (piecePlace.getSide() != s){
+            //piece at origin is not of the same side
+            return false;
+        } else if (!(piecePlace.canMove(destX, destY))){
+            //piece can't move to the destination
+            return false;
+        } else if (b.get(destX, destY) != null && (b.get(destX, destY)).getSide() == s){
+            //destination has a piece of the same side
+            return false;
+        } else if ((!(piecePlace instanceof Knight)) && !(this.isVisible(x, y, destX, destY))){
+            //if there's things in the path, but exempts a knight
+            //checks for a knight with a move only the knight can make
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -87,7 +124,6 @@ public class Game {
                 }
             }
         }
-
         return true;
     }
 
@@ -122,7 +158,8 @@ public class Game {
      * - tracks the move in game history
      *   - also tracks in history if the move was:
      *     - a capture
-     *     - result in check
+     *     - result in check EDIT: for either side
+     *     - EDIT: also if it results in a win / king capture
      * - updates the current player's turn
      *
      *  x The x coordinate of the piece to move
@@ -131,7 +168,38 @@ public class Game {
      *  destY The y coordinate of the destination to move to
      */
     public boolean move(int x, int y, int destX, int destY){
-        // TODO write this method
+        // still a problem with when the move history says that there is a check made
+        // checking for the check on the move after it's needed
+        Piece piece;
+        King king;
+        Side opponentSide = Side.negate(this.currentTurn);
+
+
+        if (!(this.canMove(x,y,destX, destY, this.currentTurn))){
+            return false;
+        }
+        if (x == destX && y == destY){
+            return false;
+        }
+
+        appendMoveToHistory(x, y, destX, destY, this.currentTurn);
+        piece = b.get(x, y);
+        piece.move(destX, destY);
+
+        king = b.getKing(opponentSide);
+
+        if (isInCheck(this.currentTurn)){
+            appendCheckToHistory(this.currentTurn);
+        }
+        if (isInCheck(opponentSide)){
+            appendCheckToHistory(opponentSide);
+        }
+
+        if (king == null){
+            appendWinToHistory(this.currentTurn);
+
+        }
+        this.currentTurn = opponentSide;
         return true;
     }
 
@@ -141,7 +209,17 @@ public class Game {
      *
      */
     public boolean isInCheck(Side side) {
-        // TODO write this method
+        King king = b.getKing(side);
+        if (king == null){
+            return false;
+        }
+        Side opponentSide = Side.negate(side);
+        List<Piece> listPiece = b.getPieces(opponentSide);
+        for (Piece piece : listPiece) {
+            if (this.canMove(piece.x, piece.y, king.x, king.y, opponentSide)){
+                return true;
+            }
+        }
         return false;
     }
 

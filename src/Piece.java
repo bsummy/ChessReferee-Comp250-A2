@@ -2,14 +2,12 @@
 public abstract class Piece {
     protected int x, y;     //Accessible within package and to subclasses
     protected Board board;
-    private boolean captured;
     private Side side;
 
     public Piece(int x, int y, Side side, Board b) {
         this.x = x;
         this.y = y;
         this.side = side;
-        captured = false;
         this.board = b;
     }
 
@@ -41,15 +39,10 @@ public abstract class Piece {
     public void capture(){
         this.x = -1;
         this.y = -1;
-        captured = true;
     }
 
     public Side getSide() {
         return side;
-    }
-
-    public boolean isCaptured() {
-        return captured;
     }
 
     public void setSide(Side side) {

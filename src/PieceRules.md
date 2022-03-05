@@ -41,9 +41,9 @@ Symbols: "♝" : "♗"
 Symbols: "♞" : "♘"
 ## Pawn
 **Note:** For the pawn, you are responsible for implementing the rule that they can move 2 blocks forward when it is their first move.
-```java
-(this.x == destX && this.y + 1 == destY) || (this.x == destX && this.y - 1 == destY)
-```
+To check if it's a first move, you can simply check if the pawn is still on its starting square. 
+Please see the PDF for a complete description of the pawn's movement rules.
+
 Symbols: "♟" : "♙"
 
 # Tips & Tricks

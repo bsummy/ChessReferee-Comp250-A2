@@ -51,6 +51,19 @@ public class Board {
         return null;
     }
 
+    // Returns all pieces belonging to Side s.
+    public List<Piece> getPieces(Side s){
+        ArrayList<Piece> out = new ArrayList<Piece>();
+        for(Piece[] array : pieces){
+            for(Piece p : array){
+                if(p != null && p.getSide() == s){
+                    out.add(p);
+                }
+            }
+        }
+        return out;
+    }
+
     public String toString(){
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < pieces.length; i++){
@@ -64,30 +77,6 @@ public class Board {
             sb.append("\n");
         }
         return sb.toString();
-    }
-
-    public List<Piece> getPieces(Side s){
-        ArrayList<Piece> out = new ArrayList<Piece>();
-        for(Piece[] array : pieces){
-            for(Piece p : array){
-                if(p != null && !p.isCaptured() && p.getSide() == s){
-                    out.add(p);
-                }
-            }
-        }
-        return out;
-    }
-
-    public List<Piece> getPieces(){
-        ArrayList<Piece> out = new ArrayList<Piece>();
-        for(Piece[] array : pieces){
-            for(Piece p : array){
-                if(p != null && !p.isCaptured()){
-                    out.add(p);
-                }
-            }
-        }
-        return out;
     }
 
     public Piece get(int x, int y) {
